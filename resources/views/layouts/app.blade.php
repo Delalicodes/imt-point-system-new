@@ -230,7 +230,7 @@
             <div class="page-body">
                 <!-- Container-fluid starts-->
                 <div class="container-fluid general-widget">
-                    @yield('widget')
+                    @yield('history')
                     @yield('point')
                     @yield('table')
                     @yield('table2')

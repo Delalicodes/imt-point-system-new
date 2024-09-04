@@ -91,7 +91,7 @@
                      <li><a href="form-builder-1.html">Form Builder</a></li>
                  </ul> --}}
              </li>
-             <li><a class="bar-icons" href="javascript:void(0)"><i class="pe-7s-date"></i><span>Weekly Point</span></a>
+             <li><a class="bar-icons" href="{{route('weeklySummary')}}"><i class="pe-7s-date"></i><span>Weekly Point</span></a>
                  {{-- <ul class="iconbar-mainmenu custom-scrollbar">
                      <li class="iconbar-header">Form Controls</li>
                      <li><a href="form-validation.html">Form Validation</a></li>

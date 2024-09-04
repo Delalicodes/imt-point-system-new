@@ -14,7 +14,7 @@ class PointController extends Controller
         $users = User::all(); // Retrieve all users or apply a specific query
         $points = Point::with('user')->get(); // Correct relationship name is 'user'
 
-        return view('point', compact('points','users'));
+        return view('point', compact('points', 'users'));
     }
 
     public function store(Request $request)

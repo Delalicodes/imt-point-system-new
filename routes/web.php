@@ -1,13 +1,17 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AutomationController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\MessagesController;
 use App\Http\Controllers\PointController;
+use App\Http\Controllers\PointHistoryController;
 use App\Http\Controllers\SummaryController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WeeklyPointController;
+use App\Http\Controllers\WeeklyPointHistoryController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -41,7 +45,13 @@ Route::middleware('auth')->group(function () {
 
     // Reset Weekly Points (ensure this is protected)
     Route::post('reset-weekly-points', [WeeklyPointController::class, 'resetWeeklyPoints'])->name('resetWeeklyPoints');
-    Route::get('/automate-reset', [AutomationController::class, 'resetWeeklyPoints'])    ->name('automate.reset');
+    Route::get('/automate-reset', [AutomationController::class, 'resetWeeklyPoints'])->name('automate.reset');
+
+    Route::get('/points_history', [PointHistoryController::class, 'index'])->name('points.history.index');
+    Route::get('/points_history/fetch', [PointHistoryController::class, 'getPointsByDate'])->name('points.history.fetch');
+
+    // Define the route for daily history with a unique name
+
 
 
     // Messages
