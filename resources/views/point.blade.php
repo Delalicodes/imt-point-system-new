@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app2')
 
 @section('point')
     <div class="container mt-5">
@@ -30,8 +30,7 @@
                                 <label class="col-form-label">Name</label>
                                 <select class="form-control form-control-info btn-square" name="user_id" id="user_id">
                                     @foreach ($users as $user)
-                                        <option value="{{ $user->id }}">{{ $user->first_name }} {{ $user->last_name }}
-                                        </option>
+                                        <option value="{{ $user->id }}">{{ $user->first_name }} {{ $user->last_name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -70,7 +69,6 @@
                             <tr>
                                 <th scope="col">Name</th>
                                 <th scope="col">Points</th>
-
                                 <th scope="col">Time</th>
                             </tr>
                         </thead>
@@ -91,20 +89,17 @@
 @endsection
 
 <!-- Include jQuery and Bootstrap JS -->
-<script src="../assets/js/jquery-3.5.1.min.js"></script>
-<script src="../assets/js/bootstrap/popper.min.js"></script>
-<script src="../assets/js/bootstrap/bootstrap.js"></script>
-
-<!-- Include Feather Icons -->
-<script src="../assets/js/icons/feather-icon/feather.min.js"></script>
-<script src="../assets/js/icons/feather-icon/feather-icon.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Custom Script -->
 <script>
     $(document).ready(function() {
+        var addModal = new bootstrap.Modal(document.getElementById('addModal'));
+
         // Show the modal when the Add button is clicked
         $('#addButton').on('click', function() {
-            $('#addModal').modal('show');
+            addModal.show();
         });
 
         // Handle the form submission with AJAX
@@ -123,8 +118,9 @@
                 data: formData,
                 success: function(response) {
                     console.log('Success:', response);
-                    $('#addModal').modal('hide'); // Close the modal
+                    addModal.hide(); // Close the modal
                     alert(response.success); // Display success message
+                    location.reload(); // Reload page to show updated points
                 },
                 error: function(xhr) {
                     console.error('Error:', xhr.status, xhr.statusText);

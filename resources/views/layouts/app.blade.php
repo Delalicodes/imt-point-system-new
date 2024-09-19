@@ -236,6 +236,9 @@
                     @yield('table2')
                     @yield('title')
                     @yield('content')
+                    @yield('widget')
+                    @yield('history')
+
                 </div>
                 <!-- Container-fluid Ends-->
             </div>

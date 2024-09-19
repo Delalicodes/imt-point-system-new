@@ -1,7 +1,7 @@
-@extends('layouts.app')
+@extends('layouts.app2')
 
-@section('widget')
-    <div class="container-fluid mt-5">
+@section('content')
+    {{-- <div class="container-fluid mt-5">
         <h1 class="dashboard-title text-center mb-5">Leaderboard: Top Achievers</h1>
         <div class="row justify-content-center">
             @foreach ($topUsers as $index => $user)
@@ -69,5 +69,37 @@
             background-color: #ffffff;
             color: #333333;
         }
-    </style>
-@endpush
+    </style> --}}
+
+    <div class="row">
+        @foreach ($topUsers as $index => $user)
+            <div class="col-lg-3 col-md-6 col-12"> <!-- 4 equal columns on large screens -->
+                <div class="card pull-up">
+                    <div class="card-content">
+                        <div class="card-body">
+                            <div class="media d-flex">
+                                <div class="align-self-center">
+                                    @if ($index === 0)
+                                        <i class="las la-medal font-large-2 success"></i>
+                                    @elseif ($index === 1)
+                                        <i class="las la-award font-large-2 warning"></i>
+                                    @elseif ($index === 2)
+                                        <i class="la la-star font-large-2 info"></i>
+                                    @else
+                                        <i class="la la-bed font-large-2 danger"></i>
+                                    @endif
+                                </div>
+                                <div class="media-body text-right">
+                                    <h5 class="text-muted text-bold-500">{{ $user->first_name }} {{ $user->last_name }}</h5>
+                                    <h3 class="text-bold-600">{{ $user->total_points }} pts</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+
+
+@endsection
