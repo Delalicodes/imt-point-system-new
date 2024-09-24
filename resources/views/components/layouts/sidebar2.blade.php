@@ -15,6 +15,11 @@
 
             <li class=" nav-item"><a href="{{route('weeklySummary')}}"><i class="la la-bar-chart"></i><span class="menu-title" data-i18n="Report">Weekly Summary</span></a>
             </li>
+
+            <li class=" nav-item"><a href="{{route('clockin')}}"><i class="las la-clock"></i><span class="menu-title" data-i18n="Report">Clockin</span></a>
+            </li>
+            <li class=" nav-item"><a href="{{route('chat')}}"><i class="la la-comments"></i><span class="menu-title" data-i18n="Report">Chat</span></a>
+            </li>
             {{-- <li class=" nav-item"><a href="#"><i class="la la-dollar"></i><span class="menu-title" data-i18n="Payments">Payments</span></a>
                 <ul class="menu-content">
                     <li><a class="menu-item" href="hospital-payments.html"><i></i><span>Payments</span></a>

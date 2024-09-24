@@ -55,4 +55,11 @@ class User extends Authenticatable
     {
         return $this->hasMany(Point::class);
     }
+
+    // User.php
+public function attendance()
+{
+    return $this->hasOne(Attendance::class);
+}
+
 }

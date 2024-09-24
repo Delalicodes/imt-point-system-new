@@ -52,6 +52,6 @@ class AuthController extends Controller
         request()->session()->regenerateToken();
 
         // Redirect to the login page or any other page
-        return redirect('auth'); // Ensure this matches your login route
+        return redirect('login'); // Ensure this matches your login route
     }
 }
