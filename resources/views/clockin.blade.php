@@ -40,6 +40,7 @@
                         <th>Clock In Time</th>
                         <th>Clock Out Time</th>
                         <th>Total Hours Worked</th>
+                        <th>Report</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -48,10 +49,11 @@
                             <td>{{ \Carbon\Carbon::parse($attendance->clock_in_time)->format('l, F j, Y g:i A') }}</td>
                             <td>{{ $attendance->clock_out_time ? \Carbon\Carbon::parse($attendance->clock_out_time)->format('l, F j, Y g:i A') : 'Not yet clocked out' }}</td>
                             <td>{{ $attendance->total_hours }}</td>
+                            <td>{{ $attendance->report ?? 'No report submitted' }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="text-center">No records found</td>
+                            <td colspan="4" class="text-center">No records found</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -62,6 +64,9 @@
 
 <!-- Include jQuery -->
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<!-- Include Toastr for notifications -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <script>
 $(document).ready(function () {
@@ -84,7 +89,7 @@ $(document).ready(function () {
                     $('#workInfo').show();
                     $('#reportSection').hide(); // Hide report section when clocked out
                 }
-                alert(response.success);
+                toastr.success(response.success);
             }
         });
     });
@@ -93,54 +98,38 @@ $(document).ready(function () {
     $('#submitReportButton').on('click', function () {
         const report = $('#reportInput').val();
 
+        if (report.trim() === '') {
+            toastr.warning('Please enter a report.');
+            return;
+        }
+
         $.ajax({
-            url: '{{ route("attendance.report") }}',
-            type: 'POST',
+            url: '{{ route("chat.store") }}', // Send report to chat route
+            method: 'POST',
             data: {
-                _token: '{{ csrf_token() }}',
-                report: report
+                report: report,
+                _token: '{{ csrf_token() }}'
             },
             success: function (response) {
-                alert(response.success);
-                $('#reportInput').val(''); // Clear input after submission
-                $('#charCount').text('Characters left: 255'); // Reset char count
+                $('#reportInput').val('');
+                $('#charCount').text('Characters left: 255');
+                toastr.success('Report submitted successfully!');
+
+                // Optionally, you can also refresh the chat page to show the new message
+                // location.reload();
             },
             error: function (xhr) {
-                alert(xhr.responseJSON.error);
+                toastr.error('Failed to submit report: ' + xhr.responseText);
             }
         });
     });
 
-    // Character counter for report input
+    // Character count functionality
     $('#reportInput').on('input', function () {
-        const maxLength = 255;
-        const currentLength = $(this).val().length;
-        $('#charCount').text(`Characters left: ${maxLength - currentLength}`);
+        const maxChars = 255;
+        const charsLeft = maxChars - $(this).val().length;
+        $('#charCount').text('Characters left: ' + charsLeft);
     });
-
-    // Set up hourly reminder (client-side)
-    setInterval(function() {
-        if ($('#workStatus').text().includes('Working')) {
-            alert('Time to report what you did this hour!');
-            const audio = new Audio('{{ asset('sounds/notification.mp3') }}'); // Update path to your notification sound
-            audio.play();
-        }
-    }, 3600000); // 3600000 milliseconds = 1 hour
-
-    // Optional: Real-time clocking status update (poll server every minute)
-    setInterval(function() {
-        $.ajax({
-            url: '{{ route("attendance.status") }}',
-            type: 'GET',
-            success: function(response) {
-                if (!response.isClockedIn) {
-                    $('#clockInOutButton').text('Start Work').removeClass('btn-danger').addClass('btn-primary');
-                    $('#workInfo').hide();
-                    $('#reportSection').hide();
-                }
-            }
-        });
-    }, 60000); // 60000 milliseconds = 1 minute
 });
 </script>
 @endsection

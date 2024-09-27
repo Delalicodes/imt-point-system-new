@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Attendance;
-use App\Models\Report;
 
 class AttendanceController extends Controller
 {
@@ -32,6 +31,7 @@ class AttendanceController extends Controller
     // Toggle clock-in and clock-out functionality
     public function toggleClockInOut()
     {
+        // Check if the user is authenticated
         if (!auth()->check()) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
@@ -57,40 +57,11 @@ class AttendanceController extends Controller
             // Calculate total hours worked
             $clockIn = Carbon::parse($attendance->clock_in_time);
             $totalTimeWorked = Carbon::now()->diffInSeconds($clockIn);
-            $attendance->total_hours = gmdate("H:i:s", $totalTimeWorked);
-            $attendance->save();
+            $attendance->total_hours = $totalTimeWorked; // Store total hours as seconds
+            $attendance->save(); // Save the updated attendance record
 
-            return response()->json(['success' => 'Work ended', 'total_hours' => $attendance->total_hours]);
+            return response()->json(['success' => 'Work ended', 'total_hours' => gmdate("H:i:s", $totalTimeWorked)]);
         }
-    }
-
-    // Submit a report linked to the current attendance record
-    public function submitReport(Request $request)
-    {
-        $request->validate([
-            'report' => 'required|string|max:255',
-        ]);
-
-        $userId = auth()->user()->id;
-
-        // Fetch the current attendance record
-        $attendance = Attendance::where('user_id', $userId)
-                                ->whereNull('clock_out_time')
-                                ->first();
-
-        if (!$attendance) {
-            return response()->json(['error' => 'You must be clocked in to submit a report.'], 400);
-        }
-
-        // Save the report
-        $report = Report::create([
-            'user_id' => $userId,
-            'attendance_id' => $attendance->id,
-            'report' => $request->input('report'),
-            'reported_at' => Carbon::now(),
-        ]);
-
-        return response()->json(['success' => 'Report submitted successfully', 'report' => $report]);
     }
 
     // Check the attendance status
@@ -108,3 +79,4 @@ class AttendanceController extends Controller
         return response()->json(['isClockedIn' => $isClockedIn]);
     }
 }
+

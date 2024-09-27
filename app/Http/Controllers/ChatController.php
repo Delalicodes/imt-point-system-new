@@ -1,7 +1,5 @@
 <?php
 
-// app/Http/Controllers/ChatController.php
-
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
@@ -26,34 +24,48 @@ class ChatController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate(['message' => 'required|string|max:255']);
+        // Validate the message and report fields
+        $request->validate([
+            'message' => 'nullable|string|max:255',
+            'report' => 'nullable|string|max:255',
+        ]);
 
-        $chat = new Chat();
-        $chat->message = $request->message;
-        $chat->user_id = auth()->id();
-        $chat->save();
+        // Only create a new chat entry if either message or report is provided
+        if ($request->filled('message') || $request->filled('report')) {
+            $chat = new Chat();
+            $chat->message = $request->message;
+            $chat->report = $request->report; // Save the report
+            $chat->user_id = auth()->id();
+            $chat->save();
+
+            return response()->json([
+                'message' => $chat->message,
+                'report' => $chat->report, // Include report in the response
+                'user' => $chat->user->username,
+                'created_at' => $chat->created_at->diffForHumans(),
+            ], 201);
+        }
+
+        // Return a response indicating that neither message nor report was sent
+        return response()->json(['error' => 'No message or report was provided.'], 400);
+    }
+
+    public function poll()
+    {
+        // Get all chats in ascending order
+        $chats = Chat::with('user')->orderBy('created_at', 'asc')->get();
 
         return response()->json([
-            'message' => $chat->message,
-            'user' => $chat->user->name,
-            'created_at' => $chat->created_at->diffForHumans(),
-        ], 201);
-    }
-
-    public function poll(Request $request)
-    {
-        $reports = Chat::with('user')->orderBy('created_at', 'asc')->get();
-
-        $formattedReports = $reports->map(function ($report) {
-            return [
-                'user_name' => $report->user->username,
-                'message' => $report->message,
-                'created_at' => $report->created_at->diffForHumans(),
-                'user_id' => $report->user_id,
-            ];
-        });
-
-        return response()->json(['reports' => $formattedReports]);
+            'reports' => $chats->map(function ($chat) {
+                return [
+                    'id' => $chat->id,
+                    'message' => $chat->message,
+                    'report' => $chat->report,
+                    'user_name' => $chat->user->username,
+                    'created_at' => $chat->created_at->diffForHumans(),
+                    'user_id' => $chat->user_id,
+                ];
+            }),
+        ]);
     }
 }
-
