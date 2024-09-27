@@ -44,12 +44,15 @@ Route::middleware('auth')->group(function () {
     Route::get('test', [TestController::class, 'index'])->name('test');
     Route::post('/attendance/toggle', [AttendanceController::class, 'toggleClockInOut'])->name('attendance.toggle');
     Route::get('clockin', [AttendanceController::class, 'index'])->name('clockin');
+    Route::post('clockin', [AttendanceController::class, 'submitReport'])->name('attendance.report');
+    Route::get('clockin/status', [AttendanceController::class, 'getAttendanceStatus'])->name('attendance.status');
 
-    // Reports Routes
+    // Chat Routes
     Route::get('/chat', [ChatController::class, 'index'])->name('chat'); // For viewing reports
     Route::post('/chat', [ChatController::class, 'store'])->name('chat.store'); // For posting new reports
     Route::get('/chat/poll', [ChatController::class, 'poll'])->name('chat.poll');
     Route::post('/chat/typing', [ChatController::class, 'typing'])->name('chat.typing');
+
 
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store'); // For posting comments
 

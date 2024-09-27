@@ -1,56 +1,49 @@
 <?php
 
+// app/Http/Controllers/ChatController.php
+
 namespace App\Http\Controllers;
 
+use App\Models\Attendance;
 use App\Models\Chat;
 use Illuminate\Http\Request;
 
 class ChatController extends Controller
 {
-    // Display all the reports (chats)
     public function index()
     {
-        // Get all messages for the authenticated user (if needed)
-        $reports = Chat::with('user')->orderBy('created_at', 'asc')->get();
-        return view('chat', compact('reports'));
+        $userId = auth()->user()->id;
+
+        // Get the latest attendance record for the user
+        $attendance = Attendance::where('user_id', $userId)->latest()->first();
+        $isClockedIn = $attendance && !$attendance->clock_out_time;
+        $totalHoursWorked = $attendance ? $attendance->total_hours : 'N/A';
+        $latestReport = $attendance ? $attendance->latest_report : 'No reports submitted yet.';
+
+        // Pass data to the chat view
+        return view('chat', compact('isClockedIn', 'totalHoursWorked', 'latestReport'));
     }
 
-    // Store a new report (chat message)
     public function store(Request $request)
     {
-        $request->validate([
-            'message' => 'required|string|max:255',
-        ]);
+        $request->validate(['message' => 'required|string|max:255']);
 
-        $report = new Chat();
-        $report->message = $request->message;
-        $report->user_id = auth()->id(); // Ensure the user is authenticated
-        $report->save();
+        $chat = new Chat();
+        $chat->message = $request->message;
+        $chat->user_id = auth()->id();
+        $chat->save();
 
         return response()->json([
-            'message' => $report->message,
-            'user' => $report->user->name,
-            'created_at' => $report->created_at->diffForHumans(),
+            'message' => $chat->message,
+            'user' => $chat->user->name,
+            'created_at' => $chat->created_at->diffForHumans(),
         ], 201);
     }
 
-    // Poll for new chat messages (return the latest messages)
     public function poll(Request $request)
     {
-        $user = auth()->user(); // Get the currently authenticated user
-        $registrationTime = $user->created_at; // Get the user's registration time
+        $reports = Chat::with('user')->orderBy('created_at', 'asc')->get();
 
-        // Fetch messages only if they were created after the user's registration time
-        $reports = Chat::with('user')
-            ->where('created_at', '>', $registrationTime)
-            ->orderBy('created_at', 'asc')
-            ->get();
-
-        // Check typing status
-        $typingUserId = session('typing_user');
-        $typingStatus = session('typing_status', false);
-
-        // Format the response for the front-end
         $formattedReports = $reports->map(function ($report) {
             return [
                 'user_name' => $report->user->username,
@@ -60,24 +53,7 @@ class ChatController extends Controller
             ];
         });
 
-        return response()->json([
-            'reports' => $formattedReports,
-            'typing' => [
-                'user_id' => $typingUserId,
-                'status' => $typingStatus,
-            ],
-        ]);
+        return response()->json(['reports' => $formattedReports]);
     }
-
-    // public function typing(Request $request)
-    // {
-    //     $request->validate([
-    //         'typing' => 'required|boolean',
-    //     ]);
-
-    //     // Store the typing status in the session
-    //     session(['typing_user' => auth()->id(), 'typing_status' => $request->typing]);
-
-    //     return response()->json(['status' => 'success']);
-    // }
 }
+
