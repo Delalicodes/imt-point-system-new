@@ -40,7 +40,7 @@
                         <th>Clock In Time</th>
                         <th>Clock Out Time</th>
                         <th>Total Hours Worked</th>
-                        <th>Report</th>
+
                     </tr>
                 </thead>
                 <tbody>
@@ -49,7 +49,7 @@
                             <td>{{ \Carbon\Carbon::parse($attendance->clock_in_time)->format('l, F j, Y g:i A') }}</td>
                             <td>{{ $attendance->clock_out_time ? \Carbon\Carbon::parse($attendance->clock_out_time)->format('l, F j, Y g:i A') : 'Not yet clocked out' }}</td>
                             <td>{{ $attendance->total_hours }}</td>
-                            <td>{{ $attendance->report ?? 'No report submitted' }}</td>
+
                         </tr>
                     @empty
                         <tr>
